@@ -61,10 +61,12 @@ IP and PORT are automatically injected from the CLI.
 ---
 
 ## 📦 Requirements
-
 - `Python 3.7+`
 
 ### 🔧 Install dependencies
+```bash
+git clone https://github.com/Certifa/ShellForge.git
+```
 
 ```bash
 pip install -r requirements.txt
